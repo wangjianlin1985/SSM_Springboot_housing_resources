@@ -1,0 +1,52 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.HouseMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加房源记录 -->
+	<insert id="addHouse" parameterType="house">
+		insert into t_house(areaObj,houseName,housePhoto,mj,floor,huxingObj,priceRangeObj,price,chaoxiang,address,lxr,telephone,houseDesc,userObj,publishDate,shenHeState) values 
+		(#{areaObj.areaId},#{houseName},#{housePhoto},#{mj},#{floor},#{huxingObj.huxingId},#{priceRangeObj.rangeId},#{price},#{chaoxiang},#{address},#{lxr},#{telephone},#{houseDesc},#{userObj.user_name},#{publishDate},#{shenHeState})
+	</insert>
+
+	<!-- 按照查询条件分页查询房源记录 -->
+	<select id="queryHouse" resultMap="houseMap" >
+		select t_house.* from t_house,t_area,t_huxing,t_priceRange,t_userInfo ${where} and t_house.areaObj = t_area.areaId and t_house.huxingObj = t_huxing.huxingId and t_house.priceRangeObj = t_priceRange.rangeId and t_house.userObj = t_userInfo.user_name limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="houseMap" type="house">
+        <id property="houseId" column="houseId" />
+        <association property="areaObj" column="areaObj" select="com.chengxusheji.mapper.AreaMapper.getArea" />
+        <association property="huxingObj" column="huxingObj" select="com.chengxusheji.mapper.HuxingMapper.getHuxing" />
+        <association property="priceRangeObj" column="priceRangeObj" select="com.chengxusheji.mapper.PriceRangeMapper.getPriceRange" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有房源记录 -->
+	<select id="queryHouseList" resultMap="houseMap" >
+		select t_house.* from t_house,t_area,t_huxing,t_priceRange,t_userInfo ${where} and t_house.areaObj = t_area.areaId and t_house.huxingObj = t_huxing.huxingId and t_house.priceRangeObj = t_priceRange.rangeId and t_house.userObj = t_userInfo.user_name
+	</select>
+
+    <!-- 按照查询条件的房源记录数 -->
+	<select id="queryHouseCount" resultType="int">
+		select count(*) from t_house,t_area,t_huxing,t_priceRange,t_userInfo ${where} and t_house.areaObj = t_area.areaId and t_house.huxingObj = t_huxing.huxingId and t_house.priceRangeObj = t_priceRange.rangeId and t_house.userObj = t_userInfo.user_name
+	</select>
+
+	<!-- 根据主键查询某个房源记录 -->
+	<select id="getHouse" parameterType="int" resultMap="houseMap">
+		select * from t_house where t_house.houseId = #{houseId}
+	</select>
+
+	<!-- 更新房源记录 -->
+	<update id="updateHouse" parameterType="house">
+		update t_house set areaObj=#{areaObj.areaId},houseName=#{houseName},housePhoto=#{housePhoto},mj=#{mj},floor=#{floor},huxingObj=#{huxingObj.huxingId},priceRangeObj=#{priceRangeObj.rangeId},price=#{price},chaoxiang=#{chaoxiang},address=#{address},lxr=#{lxr},telephone=#{telephone},houseDesc=#{houseDesc},userObj=#{userObj.user_name},publishDate=#{publishDate},shenHeState=#{shenHeState} where houseId = #{houseId}
+	</update>
+
+	<!-- 删除房源记录 -->
+	<delete id="deleteHouse" parameterType="int">
+		delete from t_house where houseId=#{houseId}
+	</delete>
+
+</mapper>
